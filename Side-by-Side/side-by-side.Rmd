@@ -2,18 +2,17 @@
 output: html_document
 ---
 
-A major challenge I've encountered in creating [individualized reproducible reports]() are placing tables side-by-side.
+A major challenge I've encountered in creating [individualized reproducible reports](http://peterwsetter.tumblr.com/post/137563092186/introduction-to-mail-merge-with-r-r-markdown) is placing tables side-by-side. In this post, I'll outline several approaches I found searching through Stack Overflow, then explain a new approach using `Latex`.
 
 ### Other Approaches
-Side-by-side tables can be achieved in HTML by [coding a table](http://stackoverflow.com/questions/19237190/2-column-report-in-r-markdown-render-html-aside-data-frame), but I need to produce the report as a PDF.
+Side-by-side tables can be achieved in HTML by [coding a table](http://stackoverflow.com/questions/19237190/2-column-report-in-r-markdown-render-html-aside-data-frame); however, when using `Knit PDF` within RStudio, the HTML doesn't render correctly.
 
-The first method I found using `grid` graphics as outlined in the [vignette from `gridExtra`](https://cran.r-project.org/web/packages/gridExtra/vignettes/tableGrob.html). Building a design for your table can be cumbersome, and it took me a lot of trial-and-error to come up with this custom format.
+The first method I found used `grid` graphics as outlined in the [vignette from `gridExtra`](https://cran.r-project.org/web/packages/gridExtra/vignettes/tableGrob.html). Building a design for a table can be cumbersome, and it took me a lot of trial-and-error to come up with this custom format.
 
 ```{r, message = FALSE, warning = FALSE}
 library(grid)
 library(gridExtra)
 library(gtable)
-
 
 CustomTable <- function(df, row.names = rownames(df), font.size = 8) {
      theme1 <- ttheme_minimal(
@@ -45,9 +44,9 @@ my.table <- mtcars[1:5, 1:5]
 grid.arrange(CustomTable(my.table), CustomTable(my.table), nrow = 1)
 ```
 
-The difficulty I ran into using this method was when I tried to place the tables on the page, especially in relation to other elements, like a `pandoc.table`.
+The difficulty I ran into using this method was when I tried to place the tables on the page, especially in relation to other elements, like a `pandoc.table`. I wasn't satisfied with the results, so I decided to pursue other options.
 
-I found the second method at [StackOverflow](http://stackoverflow.com/questions/23926671/side-by-side-xtables-in-rmarkdown) involves writing the tables to file then placing them in the document. While effective, it's not ideal when you're creating two to four tables for five hundred individualized reports.
+I found the second method at [StackOverflow](http://stackoverflow.com/questions/23926671/side-by-side-xtables-in-rmarkdown) which involves writing the tables to file then placing them in the document. While effective, it's not ideal when you're creating five hundred individualized reports.
 
 ### Building a table with `Latex`
 
@@ -55,7 +54,7 @@ If you run `print(knitr::kable(my.table, format = 'latex'))` to the console, you
 
 In order to use `Latex` within a `R` code-block, I use `cat` and the chunk-option `results='asis'`. `cat` prints the code to the document and `results='asis'` makes sure the `Latex` is used in formatting the final document.
 
-In the code below, I start by centering the table on the page with `\\begin{center}`. (Double `\` is required to differentiate from an escape character.) Next, I create the table container and specify there will be three centered columns. `\\begin{tabular}{ c c c }` To add a line between the tables, include a pipe when declaring the columns, like `\\begin{tabular}{ c | c | c }`. Next, I print my table using `knitr::kable(my.table, format = 'latex')`. Next, I separate my first column and table from the next using the `&`. Last, I print the second two tables and close out the container.
+In the code below, I start by centering the table on the page with `\\begin{center}`. (Double `\` is required to differentiate from an escape character.) Second, I create the table container and specify there will be two centered columns. `\\begin{tabular}{ c c }` To add a line between the tables, include a pipe when declaring the columns, like `\\begin{tabular}{ c | c }`. Third, I print my table using `knitr::kable(my.table, format = 'latex')`. Next, I separate my first column and table from the next using the `&`. Last, I print the second table and close out the container.
 
 ```{r, results='asis', eval = FALSE}
 
@@ -72,9 +71,8 @@ In the code below, I start by centering the table on the page with `\\begin{cent
 
 ![](image1.png)
 
-http://tex.stackexchange.com/questions/56008/different-sizes-of-font-available-in-table
-
-https://www.sharelatex.com/learn/Font_sizes,_families,_and_styles
+In some cases, it's also helpful to change the [font size](https://www.sharelatex.com/learn/Font_sizes,_families,_and_styles
+). As explained in this [Stack Exchange answer](http://tex.stackexchange.com/questions/56008/different-sizes-of-font-available-in-table) font sizes only apply to one part of the table, so it's necessary to include separate tags.
 
 ```{r, results='asis', eval = FALSE}
 
@@ -90,3 +88,7 @@ https://www.sharelatex.com/learn/Font_sizes,_families,_and_styles
 ```
 
 ![](image2.png)
+
+### Conclusion
+
+Digging into the `Latex` allowed me to find a relatively easy, workable solution for side-by-side tables in `rmarkdown` documents. It also helped me understand how `knitr::kable(format = 'latex')` produces code, which, without too much work, would allow for creating a custom `Latex` table function.
