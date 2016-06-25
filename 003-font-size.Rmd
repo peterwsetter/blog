@@ -1,6 +1,13 @@
 ---
-output: html_document
+output: 
+    html_document:
+        css: ..\\solarized-light.css
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Font Size in Rmarkdown Tables
 
 In this post, I will describe an easy method to change the font size of individual table columns in `Latex` and HTML documents. I thought about this task after reading [this Stack Overflow question](http://stackoverflow.com/questions/16424545/reduce-cell-width-and-font-size-of-table-using-pandoc-table).
 
@@ -17,13 +24,13 @@ grades <- data.frame(Class = c('Math', 'Reading', 'CS'),
 knitr::kable(grades)
 ```
 
-![](knitr.png)
+![](003-knitr.png)
 
 ```{r, eval = FALSE}
 pandoc.table(grades)
 ```
 
-![](pander.png)
+![](003-pander.png)
 
 When printing tables with long strings, `pandoc.table` has a clear advantage.
 
@@ -35,7 +42,7 @@ cat('\\scriptsize')
 pandoc.table(grades)
 ```
 
-![](whole_table.png)
+![](003-whole_table.png)
 
 The disadvantage here is that the main pieces of information, class and grade, are difficult to read. An alternative is to only apply the new formatting to the comments column. We can accomplish this by adding the code block to the string. This is similar to the implementation of the `emphasize` arguments in `pandoc.table`.
 
@@ -47,7 +54,7 @@ grades %>%
 
 ```
 
-![](one_column.png)
+![](003-one_column.png)
 
 Using `<font>`, we can do the same for an HTML table.
 
